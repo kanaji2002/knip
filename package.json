@@ -50,7 +50,7 @@
   "engines": {
     "node": ">=22.0.0"
   },
-  "packageManager": "pnpm@11.1.0",
+  "packageManager": "pnpm@11.4.0",
   "mdxlint": {
     "plugins": [
       "mdxlint-preset-webpro"
