@@ -13,6 +13,7 @@ import { getPackageNameFromModuleSpecifier } from '../util/modules.ts';
 import { perfObserver } from '../util/Performance.ts';
 import { findMatch } from '../util/regex.ts';
 import { getShouldIgnoreHandler, getShouldIgnoreTagHandler, isAlwaysIgnored } from '../util/tag.ts';
+import { getSourceReferencedPackages } from '../util/scan-requires.ts';
 import { INTERNAL_TAG } from '../constants.ts';
 
 interface AnalyzeOptions {
@@ -285,8 +286,12 @@ export const analyze = async ({
 
     if (options.isReportDependencies) {
       const { dependencyIssues, devDependencyIssues, optionalPeerDependencyIssues } = deputy.settleDependencyIssues();
-      for (const issue of dependencyIssues) collector.addIssue(issue);
-      if (!options.isProduction) for (const issue of devDependencyIssues) collector.addIssue(issue);
+
+      const toScan = [...dependencyIssues, ...(!options.isProduction ? devDependencyIssues : [])];
+      const isSourceReferenced = await getSourceReferencedPackages(toScan, analyzedFiles);
+
+      for (const issue of dependencyIssues) if (!isSourceReferenced(issue)) collector.addIssue(issue);
+      if (!options.isProduction) for (const issue of devDependencyIssues) if (!isSourceReferenced(issue)) collector.addIssue(issue);
       for (const issue of optionalPeerDependencyIssues) collector.addIssue(issue);
 
       deputy.removeIgnoredIssues(collector.getIssues());

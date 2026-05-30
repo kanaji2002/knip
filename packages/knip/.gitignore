@@ -1,5 +1,5 @@
 /coverage
-/dist
+# /dist (committed for GitHub install)
 /tmp
 /node_modules
 !/fixtures/**

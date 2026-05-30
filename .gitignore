@@ -6,3 +6,4 @@ node_modules
 .DS_Store
 .npmrc
 packages/*/dist
+!/packages/knip/dist
